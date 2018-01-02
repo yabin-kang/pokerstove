@@ -170,6 +170,9 @@ bool CardDistribution::parse(const std::string& input)
                 return false;
             if (hand.contains(c))
                 return false;
+            
+            // print for debugging
+            cout << "card:" << c.str() << handstr << endl;
             hand.insert(c);
         }
 

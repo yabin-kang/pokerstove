@@ -25,10 +25,10 @@ string Rank::str() const
 {
     switch (_rank)
     {
-        case RANK_TWO:      return "2";
-        case RANK_THREE:    return "3";
-        case RANK_FOUR:     return "4";
-        case RANK_FIVE:     return "5";
+//        case RANK_TWO:      return "2";
+//        case RANK_THREE:    return "3";
+//        case RANK_FOUR:     return "4";
+//        case RANK_FIVE:     return "5";
         case RANK_SIX:      return "6";
         case RANK_SEVEN:    return "7";
         case RANK_EIGHT:    return "8";
@@ -55,10 +55,10 @@ int Rank::rank_code(char c)
 {
     switch (c)
     {
-        case '2':      return Rank::RANK_TWO;
-        case '3':      return Rank::RANK_THREE;
-        case '4':      return Rank::RANK_FOUR;
-        case '5':      return Rank::RANK_FIVE;
+//        case '2':      return Rank::RANK_TWO;
+//        case '3':      return Rank::RANK_THREE;
+//        case '4':      return Rank::RANK_FOUR;
+//        case '5':      return Rank::RANK_FIVE;
         case '6':      return Rank::RANK_SIX;
         case '7':      return Rank::RANK_SEVEN;
         case '8':      return Rank::RANK_EIGHT;

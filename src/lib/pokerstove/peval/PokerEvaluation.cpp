@@ -179,7 +179,7 @@ int PokerEvaluation::showdownCode() const
     switch (type())
     {
         case FULL_HOUSE:                    // fall through case, prints deuces full nicer
-            if (majorRank() == Rank::Two())
+            if (majorRank() == Rank::Six())
                 minor = 1;
         case THREE_OF_A_KIND:
         case FOUR_OF_A_KIND:
@@ -266,11 +266,11 @@ bool PokerEvaluation::acePlaysLow() const
 
 void PokerEvaluation::fixWheel2to7(int rankMask)
 {
-    if (type() == STRAIGHT && majorRank() == Rank::Five())
+    if (type() == STRAIGHT && majorRank() == Rank::Nine())
     {
         _evalcode = (NO_PAIR<<VSHIFT) ^ rankMask;
     }
-    else if (type() == STRAIGHT_FLUSH && majorRank() == Rank::Five())
+    else if (type() == STRAIGHT_FLUSH && majorRank() == Rank::Nine())
     {
         _evalcode = (FLUSH<<VSHIFT) ^ rankMask;
     }

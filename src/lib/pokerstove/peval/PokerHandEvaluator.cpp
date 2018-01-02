@@ -29,6 +29,7 @@ void display(const vector<CardSet>& hands,
              const CardSet& board,
              vector<EquityResult>& result)
 {
+    cout << endl;
     for (size_t i=0; i<hands.size(); i++)
         cout << hands[i].str() << " ";
     for (size_t i=0; i<result.size(); i++)
@@ -96,6 +97,6 @@ void PokerHandEvaluator::evaluateShowdown(const vector<CardSet>& hands,
                     result[i].tieShares += INV_LUT[shares*nevals]*weight;
         }
     }
-    //display (hands, board, result);
+    display (hands, board, result);
 }
 

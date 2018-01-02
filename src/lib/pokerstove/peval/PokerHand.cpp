@@ -199,7 +199,7 @@ void PokerHand::sortEval() const
     PokerEvaluation eval = cardSet().evaluateHigh();
     Rank r;
     bool dominor = true;
-    Rank straighttop = Rank::Five();
+    Rank straighttop = Rank::Nine();
 
     oldh.sortRanks();
     switch (eval.type())
@@ -241,7 +241,7 @@ void PokerHand::sortEval() const
 
             // straights may require the ace to swing low
         case THREE_STRAIGHT:
-            straighttop = Rank::Three();
+            straighttop = Rank::Seven();
         case STRAIGHT:
         case STRAIGHT_FLUSH:
             newh = oldh;

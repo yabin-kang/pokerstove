@@ -28,13 +28,13 @@ using namespace pokerstove;
 using namespace pokerstove;
 
 // some suit mask macros
-#define SMASK(n)   (static_cast<int>(_cardmask >> (n)*Rank::NUM_RANK) & 0x1FFF)
+#define SMASK(n)   (static_cast<int>(_cardmask >> (n)*Rank::NUM_RANK) & 0x1FF)
 
 #if 1
-#define C()        (static_cast<int>(_cardmask >> (0)*Rank::NUM_RANK) & 0x1FFF)
-#define D()        (static_cast<int>(_cardmask >> (1)*Rank::NUM_RANK) & 0x1FFF)
-#define H()        (static_cast<int>(_cardmask >> (2)*Rank::NUM_RANK) & 0x1FFF)
-#define S()        (static_cast<int>(_cardmask >> (3)*Rank::NUM_RANK) & 0x1FFF)
+#define C()        (static_cast<int>(_cardmask >> (0)*Rank::NUM_RANK) & 0x1FF)
+#define D()        (static_cast<int>(_cardmask >> (1)*Rank::NUM_RANK) & 0x1FF)
+#define H()        (static_cast<int>(_cardmask >> (2)*Rank::NUM_RANK) & 0x1FF)
+#define S()        (static_cast<int>(_cardmask >> (3)*Rank::NUM_RANK) & 0x1FF)
 #else
 #define C()        SMASK(0)
 #define D()        SMASK(1)
@@ -229,7 +229,7 @@ bool CardSet::insertRanks(const CardSet& rset)
     }
 
     // ok, just do it the slow way
-    for (Rank r=Rank::Two(); r<=Rank::Ace(); ++r)
+    for (Rank r=Rank::Six(); r<=Rank::Ace(); ++r)
     {
         size_t nrin = rset.count(r);
         if (nrin == 0)
@@ -415,60 +415,63 @@ PokerEvaluation CardSet::evaluateHigh() const
     int h = H();
     int s = S();
     int rankmask = c | d | h | s;
-
-    if (nRanksTable[rankmask] >= 5)
+    
+    // print for debugging. --bk
+    cout << _cardmask << ":" << c << " " << d << " " << h << " " << s << ",";
+    
+    if (nRanksTableNo2TO5[rankmask] >= 5)
     {
         int sranks = 0;
         int suitindex=-1;
-        if (nRanksTable[c] >= 5)
+        if (nRanksTableNo2TO5[c] >= 5)
         {
             suitindex = Suit::ClubVal();
             sranks = c;
         }
-        else if (nRanksTable[d] >= 5)
+        else if (nRanksTableNo2TO5[d] >= 5)
         {
             suitindex = Suit::DiamondVal();
             sranks = d;
         }
-        else if (nRanksTable[h] >= 5)
+        else if (nRanksTableNo2TO5[h] >= 5)
         {
             suitindex = Suit::HeartVal();
             sranks = h;
         }
-        else if (nRanksTable[s] >= 5)
+        else if (nRanksTableNo2TO5[s] >= 5)
         {
             suitindex = Suit::SpadeVal();
             sranks = s;
         }
         if (suitindex >= 0)
         {
-            int strval = straightTable[sranks];
+            int strval = straightTableNo2TO5[sranks];
             if (strval > 0)
                 return PokerEvaluation((STRAIGHT_FLUSH<<VSHIFT) ^ strval<<MAJOR_SHIFT);
             else
                 return PokerEvaluation((FLUSH<<VSHIFT) ^ topFiveRanksTable[sranks]);
         }
-        int strval = straightTable[rankmask];
+        int strval = straightTableNo2TO5[rankmask];
         if (strval > 0)
             return PokerEvaluation((STRAIGHT<<VSHIFT) ^(strval<<MAJOR_SHIFT));
     }
 
-    int ncards = nRanksTable[c] + nRanksTable[d] + nRanksTable[h] + nRanksTable[s];
-    int ndups = ncards - nRanksTable[rankmask];
+    int ncards = nRanksTableNo2TO5[c] + nRanksTableNo2TO5[d] + nRanksTableNo2TO5[h] + nRanksTableNo2TO5[s];
+    int ndups = ncards - nRanksTableNo2TO5[rankmask];
 
     switch (ndups)
     {
         case 0:     // no pair
         {
-            return PokerEvaluation((NO_PAIR<<VSHIFT) ^ topFiveRanksTable[rankmask]);
+            return PokerEvaluation((NO_PAIR<<VSHIFT) ^ topFiveRanksTableNo2To5[rankmask]);
         }
         break;
 
         case 1:     // one pair
         {
             int two_mask = rankmask ^(c ^ d ^ h ^ s);
-            int topind = topRankTable[two_mask];
-            int kickers = topThreeRanksTable[rankmask ^(0x01<<topind)];
+            int topind = topRankTableNo2To5[two_mask];
+            int kickers = topThreeRanksTableNo2To5[rankmask ^(0x01<<topind)];
             return PokerEvaluation((ONE_PAIR<<VSHIFT) ^(topind << MAJOR_SHIFT) ^ kickers);
         }
         break;
@@ -479,9 +482,9 @@ PokerEvaluation CardSet::evaluateHigh() const
 
             if (two_mask)   // two pair
             {
-                int topind = topRankTable[two_mask];
-                int botind = botRankTable[two_mask];
-                int kicker = topRankTable[rankmask ^ two_mask];
+                int topind = topRankTableNo2To5[two_mask];
+                int botind = botRankTableNo2To5[two_mask];
+                int kicker = topRankTableNo2To5[rankmask ^ two_mask];
                 if (kicker >= 0)
                     return PokerEvaluation((TWO_PAIR<<VSHIFT) ^(topind << MAJOR_SHIFT) ^(botind << MINOR_SHIFT) ^(0x01<<kicker));
                 else
@@ -492,13 +495,13 @@ PokerEvaluation CardSet::evaluateHigh() const
                 int three_mask =
                     ((c&d)|(h&s)) &
                     ((c&h)|(d&s));
-                int topind = topRankTable[three_mask];
+                int topind = topRankTableNo2To5[three_mask];
                 int kickers = rankmask ^(0x01<<topind);
                 int kbits = 0;
                 if (kickers > 0)
-                    kbits   = 0x01<<topRankTable[kickers];
+                    kbits   = 0x01<<topRankTableNo2To5[kickers];
                 if (kbits >= 0 && ((kickers^kbits) > 0))
-                    kbits      ^= 0x01<<topRankTable[kickers^kbits];
+                    kbits      ^= 0x01<<topRankTableNo2To5[kickers^kbits];
                 return PokerEvaluation((THREE_OF_A_KIND<<VSHIFT) ^(topind << MAJOR_SHIFT) ^ kbits);
             }
         }
@@ -509,10 +512,10 @@ PokerEvaluation CardSet::evaluateHigh() const
             int four_mask = c & d & h & s;
             if (four_mask)
             {
-                int topind = topRankTable[four_mask];
+                int topind = topRankTableNo2To5[four_mask];
                 int kicker = rankmask;
                 kicker ^= (0x01<<topind);
-                kicker  = topRankTable[kicker];
+                kicker  = topRankTableNo2To5[kicker];
                 if (kicker >= 0)
                     return PokerEvaluation((FOUR_OF_A_KIND<<VSHIFT) ^(topind<<MAJOR_SHIFT) ^(0x01<<kicker));
                 else
@@ -520,28 +523,28 @@ PokerEvaluation CardSet::evaluateHigh() const
             }
 
             int two_mask = rankmask ^(c ^ d ^ h ^ s);
-            if (nRanksTable[two_mask] != ndups)
+            if (nRanksTableNo2TO5[two_mask] != ndups)
             {
                 int three_mask =
                     ((c&d)|(h&s)) &
                     ((c&h)|(d&s));
-                int topind = topRankTable[three_mask];
+                int topind = topRankTableNo2To5[three_mask];
                 if (two_mask > 0)
                 {
-                    int botind = topRankTable[two_mask];
+                    int botind = topRankTableNo2To5[two_mask];
                     return PokerEvaluation((FULL_HOUSE<<VSHIFT) ^(topind<<MAJOR_SHIFT) ^(botind << MINOR_SHIFT));
                 }
                 else
                 {
-                    int botind = topRankTable[three_mask ^ 0x01<<topind];
+                    int botind = topRankTableNo2To5[three_mask ^ 0x01<<topind];
                     return PokerEvaluation((FULL_HOUSE<<VSHIFT) ^(topind<<MAJOR_SHIFT) ^(botind << MINOR_SHIFT));
                 }
             }
 
-            int topind = topRankTable[two_mask];
-            int botind = topRankTable[two_mask ^ 0x01<<topind];
+            int topind = topRankTableNo2To5[two_mask];
+            int botind = topRankTableNo2To5[two_mask ^ 0x01<<topind];
             int kicker = rankmask ^ 0x01<<topind ^ 0x01<<botind;
-            kicker  = topRankTable[kicker];
+            kicker  = topRankTableNo2To5[kicker];
             if (kicker >= 0)
                 return PokerEvaluation((TWO_PAIR<<VSHIFT) ^(topind << MAJOR_SHIFT) ^(botind << MINOR_SHIFT) ^(0x01<<kicker));
             else
@@ -1113,7 +1116,7 @@ PokerEvaluation CardSet::evaluate3CP() const
     bool threeflush = countSuits() == 1 ? true : false;
 
     // then three straight
-    const int THREE_WHEEL = 0x01<<Rank::AceVal() | 0x01<<Rank::TwoVal() | 0x01<<Rank::ThreeVal();
+    const int THREE_WHEEL = 0x01<<Rank::AceVal() | 0x01<<Rank::SixVal() | 0x01<<Rank::SevenVal();
     int  topr = topRankTable[rankmask];
     int  botr = botRankTable[rankmask];
     int  strr = -1;
@@ -1126,7 +1129,7 @@ PokerEvaluation CardSet::evaluate3CP() const
     else if (rankmask == THREE_WHEEL)
     {
         threestr = true;
-        strr = Rank::ThreeVal();
+        strr = Rank::SevenVal();
     }
 
     if (threeflush)

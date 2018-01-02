@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
   }
 
   // fill with random if necessary
-  if (handDists.size() == 1) {
+  if (handDists.size() < 4) {
     handDists.emplace_back();
     handDists.back().fill(evaluator->handSize());
   }

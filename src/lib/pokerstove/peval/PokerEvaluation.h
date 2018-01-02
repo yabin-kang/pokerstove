@@ -24,8 +24,8 @@ const int TWO_PAIR              =  4;
 const int THREE_OF_A_KIND       =  5;
 const int THREE_STRAIGHT_FLUSH  =  6;
 const int STRAIGHT              =  7;
-const int FLUSH                 =  8;
-const int FULL_HOUSE            =  9;
+const int FULL_HOUSE            =  8;
+const int FLUSH                 =  9;
 const int FOUR_OF_A_KIND        = 10;
 const int STRAIGHT_FLUSH        = 11;
 

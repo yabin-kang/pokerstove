@@ -417,7 +417,7 @@ PokerEvaluation CardSet::evaluateHigh() const
     int rankmask = c | d | h | s;
     
     // print for debugging. --bk
-    cout << _cardmask << ":" << c << " " << d << " " << h << " " << s << ",";
+    // cout << _cardmask << ":" << c << " " << d << " " << h << " " << s << ",";
     
     if (nRanksTableNo2TO5[rankmask] >= 5)
     {

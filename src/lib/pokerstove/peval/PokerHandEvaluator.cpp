@@ -97,6 +97,6 @@ void PokerHandEvaluator::evaluateShowdown(const vector<CardSet>& hands,
                     result[i].tieShares += INV_LUT[shares*nevals]*weight;
         }
     }
-    display (hands, board, result);
+    // display (hands, board, result);
 }
 

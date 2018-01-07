@@ -27,7 +27,7 @@ vector<EquityResult> ShowdownEnumerator::calculateEquity (const vector<CardDistr
 {
     if (peval.get() == NULL)
         throw runtime_error("ShowdownEnumerator, null evaluator");
-    assert(dists.size() > 1);
+    assert(dists.size() > 0);
     const size_t ndists = dists.size();
     vector<EquityResult> results(ndists, EquityResult());
     size_t handsize = peval->handSize();

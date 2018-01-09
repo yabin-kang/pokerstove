@@ -4,21 +4,32 @@
 #include "ShowdownEnumerator.h"
 
 #include <string>
-#include <vector>
 
 #include "Odometer.h"
 #include "PartitionEnumerator.h"
 #include "SimpleDeck.hpp"
 
-using std::string;
-using std::vector;
-using std::runtime_error;
+using namespace std;
 
 namespace pokerstove {
 
 ShowdownEnumerator::ShowdownEnumerator ()
 {
 
+}
+
+vector<EquityResult> ShowdownEnumerator::calculateEquityFuzz (const vector<string>& inputs,
+                                                              const CardSet& board,
+                                                              boost::shared_ptr<PokerHandEvaluator> peval) const
+{
+    vector<CardDistribution> handDists;
+    for (const string& hand : inputs) {
+        handDists.emplace_back();
+        handDists.back().parse(hand);
+    }
+
+    // calcuate the results and print them
+    return calculateEquity(handDists, board, peval);
 }
 
 vector<EquityResult> ShowdownEnumerator::calculateEquity (const vector<CardDistribution>& dists,

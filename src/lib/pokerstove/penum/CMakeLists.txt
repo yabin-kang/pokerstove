@@ -3,6 +3,8 @@ find_package (Threads)
 
 set (CMAKE_CXX_FLAGS "-O2")
 
+add_definitions ("-std=c++0x")
+
 # build the test
 file(GLOB test_sources *.test.cpp)
 add_executable(penum_tests ${test_sources})

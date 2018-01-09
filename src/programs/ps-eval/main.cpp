@@ -45,22 +45,11 @@ int main(int argc, char** argv) {
   // allocate evaluator and create card distributions
   boost::shared_ptr<PokerHandEvaluator> evaluator =
       PokerHandEvaluator::alloc(game);
-  vector<CardDistribution> handDists;
-  for (const string& hand : hands) {
-    handDists.emplace_back();
-    handDists.back().parse(hand);
-  }
-
-  // fill with random if necessary
-  if (handDists.size() == 0) {
-    handDists.emplace_back();
-    handDists.back().fill(evaluator->handSize());
-  }
 
   // calcuate the results and print them
   ShowdownEnumerator showdown;
   vector<EquityResult> results =
-      showdown.calculateEquity(handDists, CardSet(board), evaluator);
+      showdown.calculateEquityFuzz(hands, CardSet(board), evaluator);
 
   double total = 0.0;
   for (const EquityResult& result : results) {

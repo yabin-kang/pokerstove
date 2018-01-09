@@ -98,6 +98,8 @@ public:
     bool operator> (const Rank& r) const { return _rank >  r._rank; }
     void operator++()                    { ++_rank; }
     void operator--()                    { --_rank; }
+    void operator++(int)                    { ++_rank; }
+    void operator--(int)                    { --_rank; }
 
 private:
     /**

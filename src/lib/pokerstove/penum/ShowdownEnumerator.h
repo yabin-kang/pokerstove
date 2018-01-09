@@ -13,25 +13,36 @@ using namespace std;
 
 namespace pokerstove
 {
-class ShowdownEnumerator
-{
-public:
-    ShowdownEnumerator ();
+    class ShowdownEnumerator
+    {
+        public:
+            ShowdownEnumerator ();
 
-    /**
-     * enumerate a poker scenario, with board support
-     */
-    std::vector<EquityResult> calculateEquity (const std::vector<CardDistribution>& dists,
-                                               const CardSet& board,
-                                               boost::shared_ptr<PokerHandEvaluator> peval) const;
+            /**
+             * enumerate a poker scenario, with board support
+             */
+            std::vector<EquityResult> calculateEquity (const std::vector<CardDistribution>& dists,
+                                                       const CardSet& board,
+                                                       boost::shared_ptr<PokerHandEvaluator> peval) const;
 
-    /**
-     * enumerate a poker scenario, with board support and fuzz input
-     */
-    std::vector<EquityResult> calculateEquityFuzz (const std::vector<string>& dists,
-                                               const CardSet& board,
-                                               boost::shared_ptr<PokerHandEvaluator> peval) const;
-};
+            /**
+             * enumerate a poker scenario, with board support and fuzz input
+             */
+            std::vector<EquityResult> calculateEquityFuzz (const std::vector<string>& dists,
+                                                       const CardSet& board,
+                                                       boost::shared_ptr<PokerHandEvaluator> peval) const;
+
+        private:
+            /**
+             * translate input into fuzz match hands cards.
+             */
+            string parseFuzzInput(const std::string& input) const;
+
+            /**
+             * translate input into fuzz match hands cards.
+             */
+            string extendHandCard(const std::string& input) const;
+    };
 }
 
 #endif  // PENUM_SHOWDOWNENUMERATOR_H_

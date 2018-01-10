@@ -4,10 +4,15 @@
 #ifndef PENUM_SHOWDOWNENUMERATOR_H_
 #define PENUM_SHOWDOWNENUMERATOR_H_
 
-#include <vector>
 #include <boost/shared_ptr.hpp>
 #include <pokerstove/peval/PokerHandEvaluator.h>
+#include <pokerstove/util/combinations.h>
+#include <pokerstove/peval/Card.h>
+#include <pokerstove/peval/Suit.h>
+#include <pokerstove/peval/Rank.h>
 #include "CardDistribution.h"
+
+#include <set>
 
 using namespace std;
 
@@ -21,14 +26,14 @@ namespace pokerstove
             /**
              * enumerate a poker scenario, with board support
              */
-            std::vector<EquityResult> calculateEquity (const std::vector<CardDistribution>& dists,
+            vector<EquityResult> calculateEquity (const std::vector<CardDistribution>& dists,
                                                        const CardSet& board,
                                                        boost::shared_ptr<PokerHandEvaluator> peval) const;
 
             /**
              * enumerate a poker scenario, with board support and fuzz input
              */
-            std::vector<EquityResult> calculateEquityFuzz (const std::vector<string>& dists,
+            vector<EquityResult> calculateEquityFuzz (const vector<std::string>& dists,
                                                        const CardSet& board,
                                                        boost::shared_ptr<PokerHandEvaluator> peval) const;
 
@@ -41,7 +46,12 @@ namespace pokerstove
             /**
              * translate input into fuzz match hands cards.
              */
-            string extendHandCard(const std::string& input) const;
+            set<CardSet> extendHandCard(const std::string& input) const;
+
+            /**
+             * generate the cardset within the range.
+             */
+            set<CardSet> generateRange(Rank a, Rank l, Rank r, char m, bool pair) const;
     };
 }
 

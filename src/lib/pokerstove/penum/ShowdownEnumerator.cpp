@@ -3,11 +3,6 @@
  */
 #include "ShowdownEnumerator.h"
 
-#include <string>
-
-#include <iostream>
-#include <vector>
-
 #include "Odometer.h"
 #include "PartitionEnumerator.h"
 #include "SimpleDeck.hpp"
@@ -49,128 +44,131 @@ string ShowdownEnumerator::parseFuzzInput(const std::string& input) const
     string ret;
     vector<string> results;
     boost::split (results, input, boost::is_any_of(","));
+    set<CardSet> handCardAll;
     boost_foreach (const string& h, results)
     {
-        std::string newhand = extendHandCard(h);
-        if (ret.size() > 0)
-            ret += ",";
-        ret += newhand;
+        set<CardSet> handCards = extendHandCard(h);
+        handCardAll.insert(handCards.begin(), handCards.end());
     }
 
-    cout << input << endl << "   ==> " << ret << endl;
+    std::set<CardSet>::iterator it = handCardAll.begin();
 
-    return ret;
-}
-
-    string ShowdownEnumerator::extendHandCard(const std::string& hand) const
-{
-    std::string ret = hand;
-    std::set<CardSet> handCards;
-    if (hand.find("+") == 2 || hand.find("+") == 3 || hand.find("o") == 2 || hand.find("s") == 2 || hand.length() == 2)
-    {
-        ret = "";
-        Rank r1 = Rank(hand);
-        Rank r2 = Rank(hand.substr(1));
-        char comp = hand[2];
-        if (comp == '\0') comp = '`';
-        switch(comp)
-        {
-            case 'o':
-                for (int i = 0; i < 4; i++) {
-                    for (int j = 0; j < 4; j++) {
-                        if (i == j) continue;
-                        CardSet cs = CardSet(r1.str() + Suit(i).str() + r2.str() + Suit(j).str());
-                        handCards.insert(cs);
-                    }
-                }
-                if (hand[3] == '+') {
-                    Rank r3 = r2; r3++;
-                    if (r1 == r2) {
-                        for (; r3 <= Rank::Ace(); r3++) {
-                            for (int i = 0; i < 4; i++) {
-                                for (int j = 0; j < 4; j++) {
-                                    if (i == j) continue;
-                                    CardSet cs = CardSet(r3.str() + Suit(i).str() + r3.str() + Suit(j).str());
-                                    handCards.insert(cs);
-                                }
-                            }
-                        }
-                    } else {
-                        for (; r3 < r1; r3++) {
-                            for (int i = 0; i < 4; i++) {
-                                for (int j = 0; j < 4; j++) {
-                                    if (i == j) continue;
-                                    CardSet cs = CardSet(r1.str() + Suit(i).str() + r3.str() + Suit(j).str());
-                                    handCards.insert(cs);
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            case 's':
-                if (r1 == r2) {
-                    break;
-                }
-
-                for (int i = 0; i < 4; i++) {
-                    CardSet cs = CardSet(r1.str() + Suit(i).str() + r2.str() + Suit(i).str());
-                    handCards.insert(cs);
-                }
-
-                if (hand[3] == '+') {
-                    Rank r3 = r2; r3++;
-                    for (; r3 < r1; r3++) {
-                        for (int i = 0; i < 4; i++) {
-                            CardSet cs = CardSet(r1.str() + Suit(i).str() + r3.str() + Suit(i).str());
-                            handCards.insert(cs);
-                        }
-                    }
-                }
-                break;
-            default:
-                for (int i = 0; i < 4; i++) {
-                    for (int j = 0; j < 4; j++) {
-                        if (i == j && r1 == r2) continue;
-                        CardSet cs = CardSet(r1.str() + Suit(i).str() + r2.str() + Suit(j).str());
-                        handCards.insert(cs);
-                    }
-                }
-                if (hand[2] == '+') {
-                    Rank r3 = r2; r3++;
-                    if (r1 == r2) {
-                        for (; r3 <= Rank::Ace(); r3++) {
-                            for (int i = 0; i < 4; i++) {
-                                for (int j = 0; j < 4; j++) {
-                                    if (i == j) continue;
-                                    CardSet cs = CardSet(r3.str() + Suit(i).str() + r3.str() + Suit(j).str());
-                                    handCards.insert(cs);
-                                }
-                            }
-                        }
-                    } else {
-                        for (; r3 < r1; r3++) {
-                            for (int i = 0; i < 4; i++) {
-                                for (int j = 0; j < 4; j++) {
-                                    CardSet cs = CardSet(r1.str() + Suit(i).str() + r3.str() + Suit(j).str());
-                                    handCards.insert(cs);
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-        }
-    }
-    std::set<CardSet>::iterator it = handCards.begin();
-
-    while(it != handCards.end()) {
+    while(it != handCardAll.end()) {
         if (ret.length() > 0)
             ret += ",";
         ret += it->str();
+
+        if (ret.find(".") < ret.length()) {
+            ret = ".";
+            break;
+        }
+
         it++;
     }
+    cout << input << endl << "   ==> " << ret << endl;
     return ret;
+}
+
+std::set<CardSet> ShowdownEnumerator::generateRange(Rank a, Rank l, Rank r, char m, bool pair) const
+{
+    std::set<CardSet> handCards;
+    for (Rank b = l; b <= r; b++) {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if ((m == 'o' && i == j) || (m == 's' && i != j) || (pair && i == j)) continue;
+                if (pair) a = b;
+                CardSet cs = CardSet(a.str() + Suit(i).str() + b.str() + Suit(j).str());
+                handCards.insert(cs);
+            }
+        }
+    }
+
+    return handCards;
+}
+
+set<CardSet> ShowdownEnumerator::extendHandCard(const std::string& hand) const
+{
+    set<CardSet> handCards;
+    if (hand == ".") {
+        CardSet handCard;
+        handCards.insert(handCard);
+        return handCards;
+    }
+
+    // try parse as regular hand card first.
+    if (hand.length() == 4) {
+        CardSet cs;
+        for (size_t i = 0; i < hand.length(); i += 2)
+        {
+            Card c;
+            if (!c.fromString(hand.substr(i,i+2)))
+                break;
+            if (cs.contains(c))
+                break;
+
+            cs.insert(c);
+        }
+
+        if (cs.size() > 0) {
+            handCards.insert(cs);
+            return handCards;
+        }
+    }
+
+    Rank r1 = Rank(hand);
+    Rank r2 = Rank(hand.substr(1));
+    bool pair = r1 == r2;
+    Rank r3 = r1;
+    Rank r4 = r2;
+    char comp = 'a';
+    if (hand.length() == 2) {
+        handCards = generateRange(r1, r4, r3, comp, pair);
+    } else {
+        comp = hand[2];
+        if (comp == '+' && hand.length() == 3) {
+            comp = 'a';
+            r3--;
+            if (pair) r3 = Rank::Ace();
+            handCards = generateRange(r1, r2, r3, comp, pair);
+        } else if (comp == '-' && hand.length() == 5) {
+            comp = 'a';
+            r3 = Rank(hand.substr(3));
+            r4 = Rank(hand.substr(4));
+            if ((pair == (r3 == r4)) && (pair || r1 == r3)) {
+                if (r2 > r4) {
+                    r3 = r4;
+                    r4 = r2;
+                    r2 = r3;
+                }
+                handCards = generateRange(r1, r2, r4, comp, pair);
+            }
+        } else if (comp == 'o' || comp == 's') {
+            char newcomp = hand[3];
+            if (newcomp == '+' && hand.length() == 4) {
+                r3--;
+                if (pair) r3 = Rank::Ace();
+                handCards = generateRange(r1, r2, r3, comp, pair);
+            } else if (newcomp == '-' && hand.length() == 7) {
+                r3 = Rank(hand.substr(4));
+                r4 = Rank(hand.substr(5));
+                newcomp = hand[6];
+                if (comp == newcomp) {
+                    if ((pair == (r3 == r4)) && (pair || r1 == r3)) {
+                        if (r2 > r4) {
+                            r3 = r4;
+                            r4 = r2;
+                            r2 = r3;
+                        }
+                        handCards = generateRange(r1, r2, r4, comp, pair);
+                    }
+                }
+            } else if (hand.length() == 3) {
+                handCards = generateRange(r1, r2, r4, comp, pair);
+            }
+        }
+    }
+
+    return handCards;
 }
 
 vector<EquityResult> ShowdownEnumerator::calculateEquity (const vector<CardDistribution>& dists,

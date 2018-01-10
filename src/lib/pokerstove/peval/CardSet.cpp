@@ -72,6 +72,7 @@ CardSet::CardSet(const string& c)
 
 string CardSet::str() const
 {
+    if (_cardmask == 0) return ".";
     string out = "";
     uint64_t v = _cardmask;
     while (v) {

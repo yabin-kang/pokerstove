@@ -93,6 +93,7 @@ public:
      * note that these operators always assume that Ace is high.
      */
     bool operator==(const Rank& r) const { return _rank == r._rank; }
+    bool operator!=(const Rank& r) const { return _rank != r._rank; }
     bool operator<=(const Rank& r) const { return _rank <= r._rank; }
     bool operator< (const Rank& r) const { return _rank <  r._rank; }
     bool operator> (const Rank& r) const { return _rank >  r._rank; }
